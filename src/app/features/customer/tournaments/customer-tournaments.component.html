@@ -1,0 +1,84 @@
+<div class="flex flex-col gap-6">
+  <app-page-header
+    title="Tournaments"
+    description="Upcoming tournaments across the city. Enroll to take part."
+  />
+
+  @if (tournaments().length > 0) {
+    <div class="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+      @for (item of tournaments(); track item.tournament.id) {
+        <article class="card flex flex-col gap-4">
+          <div>
+            <div class="flex flex-wrap items-center gap-2">
+              <span class="console-chip">{{ item.tournament.game }}</span>
+              <span class="console-chip">{{ item.tournament.consoleType }}</span>
+            </div>
+            <h2 class="mt-3 text-lg font-semibold tracking-tight text-slate-900">
+              {{ item.tournament.name }}
+            </h2>
+            @if (item.tournament.description) {
+              <p class="mt-1 text-sm text-slate-500">{{ item.tournament.description }}</p>
+            }
+          </div>
+
+          <div class="flex flex-col gap-1.5 text-sm text-slate-700">
+            <p class="flex items-center gap-2">
+              <svg lucideMapPin class="size-4 shrink-0 text-slate-500"></svg>
+              {{ item.zoneName }}
+            </p>
+            <p class="flex items-center gap-2">
+              <svg lucideCalendarClock class="size-4 shrink-0 text-slate-500"></svg>
+              {{ item.tournament.date | displayDate }},
+              {{ item.tournament.startTime | displayTime }}
+            </p>
+            <p class="flex items-center gap-2">
+              <svg lucideTicket class="size-4 shrink-0 text-slate-500"></svg>
+              {{ entryFeeLabel(item) }}
+            </p>
+            @if (item.tournament.prize) {
+              <p class="flex items-center gap-2">
+                <svg lucideGift class="size-4 shrink-0 text-slate-500"></svg>
+                Prize: {{ item.tournament.prize }}
+              </p>
+            }
+          </div>
+
+          <div class="mt-auto border-t border-slate-100 pt-4">
+            <div class="flex items-center justify-between text-sm">
+              <span class="text-slate-500">Places filled</span>
+              <span class="font-medium text-slate-900">
+                {{ item.registeredCount }} of {{ item.tournament.maxPlayers }}
+              </span>
+            </div>
+            <div class="mt-2 h-2 overflow-hidden rounded-full bg-slate-100" aria-hidden="true">
+              <div
+                class="h-full rounded-full bg-violet-600"
+                [style.width.%]="filledPercent(item)"
+              ></div>
+            </div>
+          </div>
+
+          @if (item.isEnrolled) {
+            <p
+              class="flex h-11 items-center justify-center gap-2 rounded-xl bg-emerald-50 text-sm font-medium text-emerald-700"
+            >
+              <svg lucideCircleCheck class="size-4"></svg>
+              You're enrolled
+            </p>
+          } @else if (item.isFull) {
+            <button type="button" class="btn-secondary w-full" disabled>Tournament full</button>
+          } @else {
+            <a class="btn-primary w-full" [routerLink]="paths.enroll(item.tournament.id)">Enroll</a>
+          }
+        </article>
+      }
+    </div>
+  } @else {
+    <div class="card">
+      <app-empty-state
+        [icon]="emptyIcon"
+        message="No tournaments are open right now. Check back soon."
+      />
+    </div>
+  }
+</div>

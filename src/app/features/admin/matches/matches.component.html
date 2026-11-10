@@ -1,0 +1,63 @@
+<div class="flex flex-col gap-6">
+  <app-page-header title="1v1 Matches" description="Active and completed 1v1 match listings" />
+
+  <app-matches-tabs />
+
+  <section class="card p-0" aria-labelledby="matches-title">
+    <div class="flex flex-wrap items-center justify-between gap-3 p-5">
+      <h2 id="matches-title" class="card-title">
+        {{ isCompletedView() ? 'Completed matches' : 'Active matches' }}
+      </h2>
+      <app-filter-chips
+        [options]="statusOptions"
+        [(selected)]="selectedStatus"
+        label="Match status"
+      />
+    </div>
+
+    @if (matches().length > 0) {
+      <div class="overflow-x-auto">
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th scope="col">Game</th>
+              <th scope="col">Player 1</th>
+              <th scope="col">Player 2</th>
+              <th scope="col">Gaming Zone</th>
+              <th scope="col">Date &amp; Time</th>
+              <th scope="col">Status</th>
+              @if (isCompletedView()) {
+                <th scope="col">Result</th>
+              }
+            </tr>
+          </thead>
+          <tbody>
+            @for (item of matches(); track item.match.id) {
+              <tr>
+                <td class="font-medium text-slate-900">{{ item.match.game }}</td>
+                <td>{{ item.match.player1 }}</td>
+                <td>
+                  @if (item.match.player2) {
+                    {{ item.match.player2 }}
+                  } @else {
+                    <span class="text-slate-400">Waiting for opponent</span>
+                  }
+                </td>
+                <td>{{ item.zoneName }}</td>
+                <td>{{ item.match.dateTime | displayDateTime }}</td>
+                <td><app-status-pill [status]="item.match.status" kind="match" /></td>
+                @if (isCompletedView()) {
+                  <td class="font-medium text-slate-900">{{ item.match.result }}</td>
+                }
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+    } @else {
+      <div class="border-t border-slate-100">
+        <app-empty-state [icon]="emptyIcon" message="No matches to show." />
+      </div>
+    }
+  </section>
+</div>

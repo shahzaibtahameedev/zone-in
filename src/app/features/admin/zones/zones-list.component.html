@@ -1,0 +1,76 @@
+<div class="flex flex-col gap-6">
+  <app-page-header title="Gaming Zones" description="All gaming zones and their booking numbers">
+    <a class="btn-primary" [routerLink]="paths.newZone">
+      <svg lucidePlus class="size-4"></svg>
+      Add Gaming Zone
+    </a>
+  </app-page-header>
+
+  <section class="card p-0" aria-label="Gaming zones">
+    @if (zoneSummaries().length > 0) {
+      <div class="overflow-x-auto">
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th scope="col">Gaming Zone Name</th>
+              <th scope="col">Area</th>
+              <th scope="col">Contact Number</th>
+              <th scope="col">Status</th>
+              <th scope="col">Total Bookings</th>
+              <th scope="col">Total Revenue</th>
+              <th scope="col"><span class="sr-only">Actions</span></th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (summary of zoneSummaries(); track summary.zone.id) {
+              <tr>
+                <td class="font-medium text-slate-900">{{ summary.zone.name }}</td>
+                <td>{{ summary.zone.area }}</td>
+                <td>{{ summary.zone.contactNumber }}</td>
+                <td>
+                  <app-status-pill [status]="summary.zone.isActive ? 'Active' : 'Inactive'" />
+                </td>
+                <td>{{ summary.totalBookings }}</td>
+                <td class="font-medium text-slate-900">{{ summary.totalRevenue | rupees }}</td>
+                <td>
+                  <div class="flex justify-end gap-1">
+                    <a class="btn-action" [routerLink]="paths.editZone(summary.zone.id)">
+                      <svg lucidePencil class="size-4"></svg>
+                      Edit
+                    </a>
+                    @if (summary.zone.isActive) {
+                      <button
+                        type="button"
+                        class="btn-action-danger"
+                        (click)="setZoneActive(summary.zone, false)"
+                      >
+                        <svg lucideBan class="size-4"></svg>
+                        Deactivate
+                      </button>
+                    } @else {
+                      <button
+                        type="button"
+                        class="btn-action"
+                        (click)="setZoneActive(summary.zone, true)"
+                      >
+                        <svg lucidePower class="size-4"></svg>
+                        Activate
+                      </button>
+                    }
+                  </div>
+                </td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+    } @else {
+      <app-empty-state [icon]="emptyIcon" message="No gaming zones yet.">
+        <a class="btn-primary" [routerLink]="paths.newZone">
+          <svg lucidePlus class="size-4"></svg>
+          Add Gaming Zone
+        </a>
+      </app-empty-state>
+    }
+  </section>
+</div>

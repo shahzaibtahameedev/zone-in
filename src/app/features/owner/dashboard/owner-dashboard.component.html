@@ -1,0 +1,104 @@
+<div class="flex flex-col gap-6">
+  <app-page-header
+    title="Dashboard"
+    description="This month's numbers and your bookings"
+    [context]="headerContext()"
+  >
+    <a class="btn-primary" [routerLink]="createBookingPath">
+      <svg lucidePlus class="size-4"></svg>
+      Create Booking
+    </a>
+  </app-page-header>
+
+  <section class="grid gap-4 sm:grid-cols-2 xl:grid-cols-3" aria-label="This month's numbers">
+    <app-stat-card
+      label="Total Bookings"
+      [value]="monthStats().totalBookings"
+      caption="Confirmed bookings this month"
+      [icon]="icons.bookings"
+      tone="violet"
+    />
+    <app-stat-card
+      label="Total Revenue"
+      [value]="monthStats().totalRevenue | rupees"
+      caption="From confirmed bookings this month"
+      [icon]="icons.revenue"
+      tone="emerald"
+    />
+    <app-stat-card
+      label="Most Booked Console"
+      [value]="mostBookedValue()"
+      [caption]="mostBookedCaption()"
+      [icon]="icons.console"
+      tone="amber"
+    />
+  </section>
+
+  <section class="card p-0" aria-labelledby="bookings-title">
+    <div class="flex flex-col gap-4 p-5">
+      <div class="flex flex-wrap items-center justify-between gap-3">
+        <h2 id="bookings-title" class="card-title">{{ listTitle() }}</h2>
+        <app-date-filter [(value)]="selectedDate" label="Booking date" />
+      </div>
+      <app-filter-chips
+        [options]="consoleOptions"
+        [(selected)]="selectedConsole"
+        label="Console type"
+      />
+    </div>
+
+    @if (bookings().length > 0) {
+      <div class="overflow-x-auto">
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th scope="col">Customer Name</th>
+              <th scope="col">Date</th>
+              <th scope="col">Start Time</th>
+              <th scope="col">Duration (hours)</th>
+              <th scope="col">Console Type</th>
+              <th scope="col">Amount</th>
+              <th scope="col">Payment Method</th>
+              <th scope="col">Status</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (booking of bookings(); track booking.id) {
+              <tr>
+                <td>
+                  <div class="flex items-center gap-3">
+                    <app-avatar [name]="booking.customerName" />
+                    <div>
+                      <p class="font-medium text-slate-900">{{ booking.customerName }}</p>
+                      <p class="text-xs text-slate-500">
+                        {{ booking.startTime | displayTime }} · {{ booking.paymentMethod | orDash }}
+                      </p>
+                    </div>
+                  </div>
+                </td>
+                <td>{{ booking.date | displayDate }}</td>
+                <td>{{ booking.startTime | displayTime }}</td>
+                <td>{{ booking.durationHours }}</td>
+                <td>
+                  <span class="console-chip">{{ booking.consoleType }}</span>
+                </td>
+                <td class="font-medium text-slate-900">{{ booking.totalPrice | rupees }}</td>
+                <td>{{ booking.paymentMethod | orDash }}</td>
+                <td><app-status-pill [status]="booking.status" /></td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+    } @else {
+      <div class="border-t border-slate-100">
+        <app-empty-state [icon]="icons.empty" message="No bookings for this date.">
+          <a class="btn-secondary" [routerLink]="createBookingPath">
+            <svg lucidePlus class="size-4"></svg>
+            Create Booking
+          </a>
+        </app-empty-state>
+      </div>
+    }
+  </section>
+</div>

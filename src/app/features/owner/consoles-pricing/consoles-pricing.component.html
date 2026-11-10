@@ -1,0 +1,138 @@
+<div class="flex flex-col gap-6">
+  <app-page-header
+    title="Consoles & Pricing"
+    description="Set the consoles you have, how many of each, and the price per hour"
+    context="Settings"
+  >
+    <button type="button" class="btn-primary" (click)="startAdding()">
+      <svg lucidePlus class="size-4"></svg>
+      Add Console
+    </button>
+  </app-page-header>
+
+  <section class="card p-0" aria-labelledby="consoles-title">
+    <div class="p-5">
+      <h2 id="consoles-title" class="card-title">Your consoles</h2>
+    </div>
+
+    @if (consoles().length > 0) {
+      <div class="overflow-x-auto">
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th scope="col">Console Type</th>
+              <th scope="col">Quantity</th>
+              <th scope="col">Price per Hour</th>
+              <th scope="col"><span class="sr-only">Actions</span></th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (consoleConfig of consoles(); track consoleConfig.id) {
+              <tr>
+                <td>
+                  <span class="console-chip">{{ consoleConfig.consoleType }}</span>
+                </td>
+                <td>{{ consoleConfig.quantity }}</td>
+                <td class="font-medium text-slate-900">
+                  {{ consoleConfig.pricePerHour | rupees }}
+                </td>
+                <td>
+                  <div class="flex justify-end gap-1">
+                    <button type="button" class="btn-action" (click)="startEditing(consoleConfig)">
+                      <svg lucidePencil class="size-4"></svg>
+                      Edit
+                    </button>
+                    <button
+                      type="button"
+                      class="btn-action-danger"
+                      (click)="removeConsole(consoleConfig)"
+                    >
+                      <svg lucideTrash class="size-4"></svg>
+                      Remove
+                    </button>
+                  </div>
+                </td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+    } @else {
+      <div class="border-t border-slate-100">
+        <app-empty-state
+          [icon]="emptyIcon"
+          message="No consoles set up yet. Add your first console below."
+        />
+      </div>
+    }
+  </section>
+
+  <section #formCard class="card max-w-[52rem] scroll-mt-24" aria-labelledby="console-form-title">
+    <h2 id="console-form-title" class="card-title">
+      {{ editingConsole() ? 'Edit Console' : 'Add Console' }}
+    </h2>
+
+    <form class="mt-5" [formGroup]="form" (ngSubmit)="saveConsole()" novalidate>
+      <div class="grid gap-5 sm:grid-cols-3">
+        <app-form-field
+          label="Console Type"
+          fieldId="console-type"
+          [control]="form.controls.consoleType"
+          [required]="true"
+          [hint]="editingConsole() ? 'Console type cannot be changed while editing' : ''"
+        >
+          <select #consoleTypeSelect id="console-type" class="input" formControlName="consoleType">
+            <option value="" disabled>Select a console</option>
+            @for (consoleType of consoleTypeOptions; track consoleType) {
+              <option [value]="consoleType" [disabled]="isConsoleTypeTaken(consoleType)">
+                {{ consoleType }}{{ isConsoleTypeTaken(consoleType) ? ' (already added)' : '' }}
+              </option>
+            }
+          </select>
+        </app-form-field>
+
+        <app-form-field
+          label="Quantity"
+          fieldId="quantity"
+          [control]="form.controls.quantity"
+          [required]="true"
+          hint="How many units of this console"
+        >
+          <input
+            #quantityInput
+            id="quantity"
+            type="number"
+            class="input"
+            formControlName="quantity"
+            min="1"
+            step="1"
+          />
+        </app-form-field>
+
+        <app-form-field
+          label="Price per Hour (Rs)"
+          fieldId="price-per-hour"
+          [control]="form.controls.pricePerHour"
+          [required]="true"
+        >
+          <input
+            id="price-per-hour"
+            type="number"
+            class="input"
+            formControlName="pricePerHour"
+            min="1"
+            step="10"
+          />
+        </app-form-field>
+      </div>
+
+      <div class="mt-6 flex flex-wrap justify-end gap-3 border-t border-slate-100 pt-5">
+        <button type="button" class="btn-secondary" (click)="resetForm()">Cancel</button>
+        <button type="submit" class="btn-primary">
+          <svg lucideSave class="size-4"></svg>
+          Save Console
+        </button>
+      </div>
+    </form>
+  </section>
+</div>

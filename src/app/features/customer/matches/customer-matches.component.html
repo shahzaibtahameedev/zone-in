@@ -1,0 +1,112 @@
+<div class="flex flex-col gap-8">
+  <app-page-header
+    title="1v1 Matches"
+    description="Find an opponent for FIFA or Tekken, or post your own 1v1 slot for others to join."
+  >
+    <a class="btn-primary" [routerLink]="paths.newMatch">
+      <svg lucidePlus class="size-4"></svg>
+      Create 1v1 Slot
+    </a>
+  </app-page-header>
+
+  @if (myMatches().length > 0) {
+    <section class="card p-0" aria-labelledby="my-matches-title">
+      <div class="p-5">
+        <h2 id="my-matches-title" class="card-title">My matches</h2>
+      </div>
+      <div class="overflow-x-auto">
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th scope="col">Game</th>
+              <th scope="col">Opponent</th>
+              <th scope="col">Gaming Zone</th>
+              <th scope="col">Date &amp; Time</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (item of myMatches(); track item.match.id) {
+              <tr>
+                <td>
+                  <span class="console-chip">{{ item.match.game }}</span>
+                </td>
+                <td>
+                  @if (opponentName(item); as opponent) {
+                    <div class="flex items-center gap-3">
+                      <app-avatar [name]="opponent" />
+                      <span class="font-medium text-slate-900">{{ opponent }}</span>
+                    </div>
+                  } @else {
+                    <span class="text-slate-400">Waiting for opponent</span>
+                  }
+                </td>
+                <td>{{ item.zoneName }}</td>
+                <td>{{ item.match.dateTime | displayDateTime }}</td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+    </section>
+  }
+
+  <section class="flex flex-col gap-4" aria-labelledby="open-matches-title">
+    <div class="flex flex-wrap items-center justify-between gap-3">
+      <div>
+        <h2 id="open-matches-title" class="text-lg font-semibold tracking-tight text-slate-900">
+          Open 1v1 slots
+        </h2>
+        <p class="mt-1 text-sm text-slate-500">
+          Players looking for an opponent. Join one to play.
+        </p>
+      </div>
+      <app-filter-chips [options]="gameOptions" [(selected)]="selectedGame" label="Game" />
+    </div>
+
+    @if (openMatches().length > 0) {
+      <div class="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+        @for (item of openMatches(); track item.match.id) {
+          <article class="card flex flex-col gap-4">
+            <div class="flex items-center justify-between gap-3">
+              <span class="console-chip">{{ item.match.game }}</span>
+              <span class="text-xs font-medium text-amber-700">Needs an opponent</span>
+            </div>
+            <div class="flex items-center gap-3">
+              <app-avatar [name]="item.match.player1" />
+              <div class="min-w-0">
+                <p class="truncate font-semibold text-slate-900">{{ item.match.player1 }}</p>
+                <p class="text-sm text-slate-500">vs you?</p>
+              </div>
+            </div>
+            <div class="flex flex-col gap-1.5 text-sm text-slate-700">
+              <p class="flex items-center gap-2">
+                <svg lucideMapPin class="size-4 shrink-0 text-slate-500"></svg>
+                {{ item.zoneName }}
+              </p>
+              <p class="flex items-center gap-2">
+                <svg lucideCalendarClock class="size-4 shrink-0 text-slate-500"></svg>
+                {{ item.match.dateTime | displayDateTime }}
+              </p>
+            </div>
+            <a class="btn-primary mt-auto w-full" [routerLink]="paths.joinMatch(item.match.id)">
+              <svg lucideSwords class="size-4"></svg>
+              Join
+            </a>
+          </article>
+        }
+      </div>
+    } @else {
+      <div class="card">
+        <app-empty-state
+          [icon]="emptyIcon"
+          message="No open 1v1 slots right now. Create your own and let others join."
+        >
+          <a class="btn-primary" [routerLink]="paths.newMatch">
+            <svg lucidePlus class="size-4"></svg>
+            Create 1v1 Slot
+          </a>
+        </app-empty-state>
+      </div>
+    }
+  </section>
+</div>

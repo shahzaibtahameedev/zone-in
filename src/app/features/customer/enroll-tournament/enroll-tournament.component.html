@@ -1,0 +1,114 @@
+<div class="flex flex-col gap-6">
+  @if (isEnrolledNow()) {
+    <app-success-panel title="You're enrolled" [message]="enrolledSummary()">
+      <a class="btn-primary" [routerLink]="tournamentsPath">Back to Tournaments</a>
+    </app-success-panel>
+  } @else if (enrollError(); as error) {
+    <section class="card mx-auto mt-6 w-full max-w-xl">
+      <app-empty-state [icon]="emptyIcon" [message]="error">
+        <a class="btn-primary" [routerLink]="tournamentsPath">
+          <svg lucideArrowLeft class="size-4"></svg>
+          Back to Tournaments
+        </a>
+      </app-empty-state>
+    </section>
+  } @else if (tournament(); as details) {
+    <app-page-header
+      title="Enroll in a tournament"
+      description="Check the details and enroll as a participant."
+      context="Tournaments"
+    />
+
+    <div class="grid items-start gap-6 lg:grid-cols-[minmax(0,1fr)_24rem]">
+      <section class="card" aria-labelledby="tournament-details-title">
+        <h2 id="tournament-details-title" class="card-title">{{ details.name }}</h2>
+        <dl class="mt-4 divide-y divide-slate-100 text-sm">
+          <div class="flex justify-between gap-4 py-3">
+            <dt class="text-slate-500">Game</dt>
+            <dd>
+              <span class="console-chip">{{ details.game }}</span>
+            </dd>
+          </div>
+          <div class="flex justify-between gap-4 py-3">
+            <dt class="text-slate-500">Console Type</dt>
+            <dd>
+              <span class="console-chip">{{ details.consoleType }}</span>
+            </dd>
+          </div>
+          <div class="flex justify-between gap-4 py-3">
+            <dt class="text-slate-500">Gaming Zone</dt>
+            <dd class="text-right font-medium text-slate-900">{{ zoneName() }}</dd>
+          </div>
+          <div class="flex justify-between gap-4 py-3">
+            <dt class="text-slate-500">Date &amp; Time</dt>
+            <dd class="text-right font-medium text-slate-900">
+              {{ details.date | displayDate }}, {{ details.startTime | displayTime }}
+            </dd>
+          </div>
+          <div class="flex justify-between gap-4 py-3">
+            <dt class="text-slate-500">Entry Fee</dt>
+            <dd class="text-right font-medium text-slate-900">
+              @if (details.entryFee) {
+                {{ details.entryFee | rupees }}
+              } @else {
+                Free
+              }
+            </dd>
+          </div>
+          <div class="flex justify-between gap-4 py-3">
+            <dt class="text-slate-500">Prize</dt>
+            <dd class="text-right font-medium text-slate-900">{{ details.prize | orDash }}</dd>
+          </div>
+          <div class="flex justify-between gap-4 py-3">
+            <dt class="text-slate-500">Places filled</dt>
+            <dd class="text-right font-medium text-slate-900">
+              {{ registeredCount() }} of {{ details.maxPlayers }}
+            </dd>
+          </div>
+        </dl>
+        @if (details.description) {
+          <p class="mt-4 text-sm text-slate-500">{{ details.description }}</p>
+        }
+      </section>
+
+      <section class="card" aria-labelledby="enroll-title">
+        <h2 id="enroll-title" class="card-title">Your details</h2>
+        <form class="mt-4 flex flex-col gap-5" [formGroup]="form" (ngSubmit)="enroll()" novalidate>
+          <app-form-field
+            label="Player Name"
+            fieldId="enroll-player-name"
+            [control]="form.controls.playerName"
+            [required]="true"
+            hint="The name shown on the tournament list"
+          >
+            <input
+              id="enroll-player-name"
+              type="text"
+              class="input"
+              formControlName="playerName"
+              autocomplete="name"
+            />
+          </app-form-field>
+
+          @if (formError()) {
+            <div class="form-alert" role="alert">
+              <svg lucideCircleAlert class="mt-0.5 size-4 shrink-0"></svg>
+              <p>{{ formError() }}</p>
+            </div>
+          }
+
+          <div class="flex flex-col gap-3">
+            <button type="submit" class="btn-primary w-full">
+              <svg lucideTrophy class="size-4"></svg>
+              Enroll
+            </button>
+            <a class="btn-secondary w-full" [routerLink]="tournamentsPath">
+              <svg lucideArrowLeft class="size-4"></svg>
+              Back
+            </a>
+          </div>
+        </form>
+      </section>
+    </div>
+  }
+</div>

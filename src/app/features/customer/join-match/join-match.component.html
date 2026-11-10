@@ -1,0 +1,98 @@
+<div class="flex flex-col gap-6">
+  @if (joinedMatch()) {
+    <app-success-panel title="You're in the match" [message]="joinedSummary()">
+      <a class="btn-primary" [routerLink]="matchesPath">Back to 1v1 Matches</a>
+    </app-success-panel>
+  } @else if (joinError(); as error) {
+    <section class="card mx-auto mt-6 w-full max-w-xl">
+      <app-empty-state [icon]="emptyIcon" [message]="error">
+        <a class="btn-primary" [routerLink]="matchesPath">
+          <svg lucideArrowLeft class="size-4"></svg>
+          Back to 1v1 Matches
+        </a>
+      </app-empty-state>
+    </section>
+  } @else if (matchItem(); as item) {
+    <app-page-header
+      title="Join a 1v1 match"
+      description="Check the details and join to play."
+      context="1v1 Matches"
+    />
+
+    <div class="grid items-start gap-6 lg:grid-cols-[minmax(0,1fr)_24rem]">
+      <section class="card" aria-labelledby="match-details-title">
+        <h2 id="match-details-title" class="card-title">Match details</h2>
+        <dl class="mt-4 divide-y divide-slate-100 text-sm">
+          <div class="flex justify-between gap-4 py-3">
+            <dt class="text-slate-500">Game</dt>
+            <dd>
+              <span class="console-chip">{{ item.match.game }}</span>
+            </dd>
+          </div>
+          <div class="flex justify-between gap-4 py-3">
+            <dt class="text-slate-500">Opponent</dt>
+            <dd class="text-right font-medium text-slate-900">{{ item.match.player1 }}</dd>
+          </div>
+          <div class="flex justify-between gap-4 py-3">
+            <dt class="text-slate-500">Gaming Zone</dt>
+            <dd class="text-right font-medium text-slate-900">{{ item.zoneName }}</dd>
+          </div>
+          <div class="flex justify-between gap-4 py-3">
+            <dt class="text-slate-500">Address</dt>
+            <dd class="text-right font-medium text-slate-900">{{ zoneAddress() }}</dd>
+          </div>
+          <div class="flex justify-between gap-4 py-3">
+            <dt class="text-slate-500">Date &amp; Time</dt>
+            <dd class="text-right font-medium text-slate-900">
+              {{ item.match.dateTime | displayDateTime }}
+            </dd>
+          </div>
+        </dl>
+      </section>
+
+      <section class="card" aria-labelledby="join-title">
+        <h2 id="join-title" class="card-title">Your details</h2>
+        <form
+          class="mt-4 flex flex-col gap-5"
+          [formGroup]="form"
+          (ngSubmit)="joinMatch()"
+          novalidate
+        >
+          <app-form-field
+            label="Your Name"
+            fieldId="join-player-name"
+            [control]="form.controls.playerName"
+            [required]="true"
+            hint="Shown to your opponent"
+          >
+            <input
+              id="join-player-name"
+              type="text"
+              class="input"
+              formControlName="playerName"
+              autocomplete="name"
+            />
+          </app-form-field>
+
+          @if (formError()) {
+            <div class="form-alert" role="alert">
+              <svg lucideCircleAlert class="mt-0.5 size-4 shrink-0"></svg>
+              <p>{{ formError() }}</p>
+            </div>
+          }
+
+          <div class="flex flex-col gap-3">
+            <button type="submit" class="btn-primary w-full">
+              <svg lucideSwords class="size-4"></svg>
+              Join Match
+            </button>
+            <a class="btn-secondary w-full" [routerLink]="matchesPath">
+              <svg lucideArrowLeft class="size-4"></svg>
+              Back
+            </a>
+          </div>
+        </form>
+      </section>
+    </div>
+  }
+</div>

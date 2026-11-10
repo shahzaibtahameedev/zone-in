@@ -1,0 +1,190 @@
+<div class="flex flex-col gap-6">
+  <app-page-header [title]="pageTitle()" context="Tournaments" />
+
+  @if (isNotFound()) {
+    <section class="card">
+      <app-empty-state [icon]="notFoundIcon" message="This tournament could not be found." />
+    </section>
+  } @else {
+    <form
+      class="card max-w-[52rem]"
+      [formGroup]="form"
+      (ngSubmit)="saveTournament('Draft')"
+      novalidate
+    >
+      <h2 class="card-title">Tournament details</h2>
+
+      <div class="mt-5 grid gap-5 sm:grid-cols-2">
+        <div class="sm:col-span-2">
+          <app-form-field
+            label="Tournament Name"
+            fieldId="tournament-name"
+            [control]="form.controls.name"
+            [required]="true"
+          >
+            <input
+              id="tournament-name"
+              type="text"
+              class="input"
+              formControlName="name"
+              autocomplete="off"
+            />
+          </app-form-field>
+        </div>
+
+        <app-form-field
+          label="Game"
+          fieldId="tournament-game"
+          [control]="form.controls.game"
+          [required]="true"
+        >
+          <select id="tournament-game" class="input" formControlName="game">
+            <option value="" disabled>Select a game</option>
+            @for (game of games; track game) {
+              <option [value]="game">{{ game }}</option>
+            }
+          </select>
+        </app-form-field>
+
+        <app-form-field
+          label="Console Type"
+          fieldId="tournament-console"
+          [control]="form.controls.consoleType"
+          [required]="true"
+        >
+          <select id="tournament-console" class="input" formControlName="consoleType">
+            <option value="" disabled>Select a console</option>
+            @for (consoleType of consoleTypes; track consoleType) {
+              <option [value]="consoleType">{{ consoleType }}</option>
+            }
+          </select>
+        </app-form-field>
+
+        <app-form-field
+          label="Gaming Zone"
+          fieldId="tournament-zone"
+          [control]="form.controls.zoneId"
+          [required]="true"
+        >
+          <select id="tournament-zone" class="input" formControlName="zoneId">
+            <option value="" disabled>Select a gaming zone</option>
+            @for (zone of zones(); track zone.id) {
+              <option [value]="zone.id">{{ zone.name }}</option>
+            }
+          </select>
+        </app-form-field>
+
+        <app-form-field
+          label="Date"
+          fieldId="tournament-date"
+          [control]="form.controls.date"
+          [required]="true"
+        >
+          <input
+            id="tournament-date"
+            type="date"
+            class="input"
+            formControlName="date"
+            [min]="today"
+          />
+        </app-form-field>
+
+        <app-form-field
+          label="Start Time"
+          fieldId="tournament-time"
+          [control]="form.controls.startTime"
+          [required]="true"
+        >
+          <input id="tournament-time" type="time" class="input" formControlName="startTime" />
+        </app-form-field>
+
+        <app-form-field
+          label="Max Players"
+          fieldId="tournament-max-players"
+          [control]="form.controls.maxPlayers"
+          [required]="true"
+          hint="Whole number, 2 or more"
+        >
+          <input
+            id="tournament-max-players"
+            type="number"
+            class="input"
+            formControlName="maxPlayers"
+            min="2"
+            step="1"
+          />
+        </app-form-field>
+
+        <app-form-field
+          label="Entry Fee (Rs)"
+          fieldId="tournament-fee"
+          [control]="form.controls.entryFee"
+        >
+          <input
+            id="tournament-fee"
+            type="number"
+            class="input"
+            formControlName="entryFee"
+            min="0"
+            step="50"
+          />
+        </app-form-field>
+
+        <app-form-field label="Prize" fieldId="tournament-prize" [control]="form.controls.prize">
+          <input
+            id="tournament-prize"
+            type="text"
+            class="input"
+            formControlName="prize"
+            placeholder="e.g. Rs 20,000"
+          />
+        </app-form-field>
+
+        <div class="sm:col-span-2">
+          <app-form-field
+            label="Description"
+            fieldId="tournament-description"
+            [control]="form.controls.description"
+          >
+            <textarea
+              id="tournament-description"
+              class="textarea"
+              formControlName="description"
+            ></textarea>
+          </app-form-field>
+        </div>
+      </div>
+
+      @if (isCancelled()) {
+        <p class="hint mt-6">
+          This tournament is cancelled. You can still edit its details, but it cannot be published
+          again.
+        </p>
+      }
+
+      @if (formError()) {
+        <div class="form-alert mt-6" role="alert">
+          <svg lucideCircleAlert class="mt-0.5 size-4 shrink-0"></svg>
+          <p>{{ formError() }}</p>
+        </div>
+      }
+
+      <div class="mt-6 flex flex-wrap justify-end gap-3 border-t border-slate-100 pt-5">
+        <a class="btn-secondary" [routerLink]="tournamentsPath">Cancel</a>
+        <button type="submit" class="btn-secondary">
+          <svg lucideSave class="size-4"></svg>
+          {{ isCancelled() ? 'Save Changes' : 'Save as Draft' }}
+        </button>
+        <button
+          type="button"
+          class="btn-primary"
+          [disabled]="isCancelled()"
+          (click)="saveTournament('Published')"
+        >
+          <svg lucideSend class="size-4"></svg>
+          Publish
+        </button>
+      </div>
+    </form>
+  }
+</div>

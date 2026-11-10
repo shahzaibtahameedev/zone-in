@@ -1,0 +1,147 @@
+<div class="flex flex-col gap-6">
+  @switch (state()) {
+    @case ('confirmed') {
+      <app-success-panel title="Your booking is confirmed" [message]="confirmedSummary()">
+        <a class="btn-primary" [routerLink]="browsePath">Book another slot</a>
+      </app-success-panel>
+    }
+    @case ('slotTaken') {
+      <section class="card mx-auto mt-6 w-full max-w-xl">
+        <app-empty-state
+          [icon]="slotTakenIcon"
+          message="Sorry, this slot was just taken. Please choose another."
+        >
+          <a class="btn-primary" [routerLink]="browsePath">
+            <svg lucideArrowLeft class="size-4"></svg>
+            Choose another slot
+          </a>
+        </app-empty-state>
+      </section>
+    }
+    @default {
+      @if (details(); as bookingDetails) {
+        <app-page-header
+          title="Booking summary"
+          description="Check your booking details and choose how to pay."
+        />
+
+        <div class="grid items-start gap-6 lg:grid-cols-[minmax(0,1fr)_24rem]">
+          <section class="card" aria-labelledby="details-title">
+            <h2 id="details-title" class="card-title">Booking details</h2>
+            <dl class="mt-4 divide-y divide-slate-100 text-sm">
+              <div class="flex justify-between gap-4 py-3">
+                <dt class="text-slate-500">Gaming Zone</dt>
+                <dd class="text-right font-medium text-slate-900">{{ bookingDetails.zoneName }}</dd>
+              </div>
+              <div class="flex justify-between gap-4 py-3">
+                <dt class="text-slate-500">Address</dt>
+                <dd class="text-right font-medium text-slate-900">{{ bookingDetails.address }}</dd>
+              </div>
+              <div class="flex justify-between gap-4 py-3">
+                <dt class="text-slate-500">Console Type</dt>
+                <dd>
+                  <span class="console-chip">{{ bookingDetails.consoleType }}</span>
+                </dd>
+              </div>
+              <div class="flex justify-between gap-4 py-3">
+                <dt class="text-slate-500">Date</dt>
+                <dd class="text-right font-medium text-slate-900">
+                  {{ bookingDetails.date | displayDate }}
+                </dd>
+              </div>
+              <div class="flex justify-between gap-4 py-3">
+                <dt class="text-slate-500">Time Slot</dt>
+                <dd class="text-right font-medium text-slate-900">
+                  {{ bookingDetails.startTime | timeRange: bookingDetails.durationHours }}
+                </dd>
+              </div>
+              <div class="flex justify-between gap-4 py-3">
+                <dt class="text-slate-500">Duration (hours)</dt>
+                <dd class="text-right font-medium text-slate-900">
+                  {{ bookingDetails.durationHours }}
+                </dd>
+              </div>
+              <div class="flex justify-between gap-4 py-3">
+                <dt class="text-slate-500">Price per Hour</dt>
+                <dd class="text-right font-medium text-slate-900">
+                  {{ bookingDetails.pricePerHour | rupees }}
+                </dd>
+              </div>
+              <div class="flex justify-between gap-4 py-3">
+                <dt class="text-slate-500">Total Price</dt>
+                <dd class="text-right font-medium text-slate-900">
+                  {{ bookingDetails.totalPrice | rupees }}
+                </dd>
+              </div>
+              <div class="flex justify-between gap-4 py-3">
+                <dt class="text-slate-500">Email</dt>
+                <dd class="min-w-0 truncate text-right font-medium text-slate-900">
+                  {{ bookingDetails.email }}
+                </dd>
+              </div>
+            </dl>
+          </section>
+
+          <section class="card" aria-labelledby="payment-title">
+            <h2 id="payment-title" class="card-title">Payment</h2>
+            <form
+              class="mt-4 flex flex-col gap-5"
+              [formGroup]="form"
+              (ngSubmit)="bookSlot()"
+              novalidate
+            >
+              <fieldset>
+                <legend class="label">
+                  Payment Method <span class="text-rose-600" aria-hidden="true">*</span>
+                </legend>
+                <div class="mt-2 grid gap-2">
+                  @for (method of paymentMethods; track method) {
+                    <label
+                      class="flex min-h-11 cursor-pointer items-center gap-3 rounded-xl px-3 py-3 ring-1 ring-slate-200 transition-colors hover:bg-slate-50 has-checked:bg-violet-50 has-checked:ring-violet-500"
+                    >
+                      <input
+                        type="radio"
+                        class="radio"
+                        formControlName="paymentMethod"
+                        [value]="method"
+                      />
+                      <svg [lucideIcon]="paymentIcons[method]" class="size-4 text-slate-500"></svg>
+                      <span class="text-sm font-medium text-slate-900">{{ method }}</span>
+                    </label>
+                  }
+                </div>
+                @if (form.controls.paymentMethod.touched && form.controls.paymentMethod.invalid) {
+                  <p class="field-error mt-1.5" role="alert">Payment Method is required.</p>
+                }
+              </fieldset>
+
+              <div class="rounded-xl bg-slate-50 p-4">
+                <p class="text-sm text-slate-500">Total to pay</p>
+                <p class="mt-1 text-3xl font-bold tracking-tight text-slate-900">
+                  {{ bookingDetails.totalPrice | rupees }}
+                </p>
+              </div>
+
+              @if (bookingError()) {
+                <div class="form-alert" role="alert">
+                  <svg lucideCircleAlert class="mt-0.5 size-4 shrink-0"></svg>
+                  <p>{{ bookingError() }}</p>
+                </div>
+              }
+
+              <div class="flex flex-col gap-3">
+                <button type="submit" class="btn-primary w-full" [disabled]="form.invalid">
+                  Book
+                </button>
+                <a class="btn-secondary w-full" [routerLink]="browsePath">
+                  <svg lucideArrowLeft class="size-4"></svg>
+                  Back
+                </a>
+              </div>
+            </form>
+          </section>
+        </div>
+      }
+    }
+  }
+</div>

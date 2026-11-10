@@ -1,0 +1,87 @@
+<div class="flex flex-col gap-6">
+  <app-page-header title="Tournaments" description="Tournaments across the city">
+    <a class="btn-primary" [routerLink]="paths.newTournament">
+      <svg lucidePlus class="size-4"></svg>
+      Create Tournament
+    </a>
+  </app-page-header>
+
+  <section class="card p-0" aria-label="Tournaments">
+    @if (tournaments().length > 0) {
+      <div class="overflow-x-auto">
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th scope="col">Tournament Name</th>
+              <th scope="col">Game</th>
+              <th scope="col">Gaming Zone</th>
+              <th scope="col">Date</th>
+              <th scope="col">Registrations</th>
+              <th scope="col">Status</th>
+              <th scope="col"><span class="sr-only">Actions</span></th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (item of tournaments(); track item.tournament.id) {
+              <tr>
+                <td class="font-medium text-slate-900">{{ item.tournament.name }}</td>
+                <td>{{ item.tournament.game }}</td>
+                <td>{{ item.zoneName }}</td>
+                <td>{{ item.tournament.date | displayDate }}</td>
+                <td>{{ item.registeredCount }} / {{ item.tournament.maxPlayers }}</td>
+                <td><app-status-pill [status]="item.tournament.status" /></td>
+                <td>
+                  <div class="flex justify-end gap-1">
+                    <a class="btn-action" [routerLink]="paths.editTournament(item.tournament.id)">
+                      <svg lucidePencil class="size-4"></svg>
+                      Edit
+                    </a>
+                    @if (item.tournament.status === 'Draft') {
+                      <button
+                        type="button"
+                        class="btn-action"
+                        (click)="publishTournament(item.tournament)"
+                      >
+                        <svg lucideSend class="size-4"></svg>
+                        Publish
+                      </button>
+                    }
+                    @if (item.tournament.status !== 'Cancelled') {
+                      <button
+                        type="button"
+                        class="btn-action-danger"
+                        (click)="cancelTournament(item.tournament)"
+                      >
+                        <svg lucideBan class="size-4"></svg>
+                        Cancel
+                      </button>
+                    }
+                    <button
+                      type="button"
+                      class="btn-action-danger"
+                      (click)="deleteTournament(item.tournament)"
+                    >
+                      <svg lucideTrash class="size-4"></svg>
+                      Delete
+                    </button>
+                    <a class="btn-action" [routerLink]="paths.registrations(item.tournament.id)">
+                      <svg lucideListChecks class="size-4"></svg>
+                      Registrations
+                    </a>
+                  </div>
+                </td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+    } @else {
+      <app-empty-state [icon]="emptyIcon" message="No tournaments yet.">
+        <a class="btn-primary" [routerLink]="paths.newTournament">
+          <svg lucidePlus class="size-4"></svg>
+          Create Tournament
+        </a>
+      </app-empty-state>
+    }
+  </section>
+</div>

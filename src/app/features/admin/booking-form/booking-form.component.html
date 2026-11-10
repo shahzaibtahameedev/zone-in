@@ -1,0 +1,175 @@
+<div class="flex flex-col gap-6">
+  <app-page-header [title]="pageTitle()" context="Bookings" />
+
+  @if (isNotFound()) {
+    <section class="card">
+      <app-empty-state [icon]="notFoundIcon" message="This booking could not be found." />
+    </section>
+  } @else {
+    <form class="card max-w-[52rem]" [formGroup]="form" (ngSubmit)="saveBooking()" novalidate>
+      <h2 class="card-title">Booking details</h2>
+
+      <div class="mt-5 grid gap-5 sm:grid-cols-2">
+        <app-form-field
+          label="Gaming Zone"
+          fieldId="booking-zone"
+          [control]="form.controls.zoneId"
+          [required]="true"
+        >
+          <select id="booking-zone" class="input" formControlName="zoneId">
+            <option value="" disabled>Select a gaming zone</option>
+            @for (zone of zones(); track zone.id) {
+              <option [value]="zone.id">{{ zone.name }}</option>
+            }
+          </select>
+        </app-form-field>
+
+        <app-form-field
+          label="Customer Name"
+          fieldId="customer-name"
+          [control]="form.controls.customerName"
+          [required]="true"
+        >
+          <input
+            id="customer-name"
+            type="text"
+            class="input"
+            formControlName="customerName"
+            autocomplete="off"
+          />
+        </app-form-field>
+
+        <app-form-field
+          label="Customer Email"
+          fieldId="customer-email"
+          [control]="form.controls.customerEmail"
+          hint="Links the booking to a customer"
+        >
+          <input
+            id="customer-email"
+            type="email"
+            class="input"
+            formControlName="customerEmail"
+            autocomplete="off"
+          />
+        </app-form-field>
+
+        <app-form-field
+          label="Date"
+          fieldId="booking-date"
+          [control]="form.controls.date"
+          [required]="true"
+        >
+          <input
+            id="booking-date"
+            type="date"
+            class="input"
+            formControlName="date"
+            [attr.min]="isEditing() ? null : today"
+          />
+        </app-form-field>
+
+        <app-form-field
+          label="Start Time"
+          fieldId="start-time"
+          [control]="form.controls.startTime"
+          [required]="true"
+          [hint]="openingHoursHint"
+        >
+          <select id="start-time" class="input" formControlName="startTime">
+            <option value="" disabled>Select a time</option>
+            @for (startTime of startTimeOptions; track startTime) {
+              <option [value]="startTime">{{ startTime | displayTime }}</option>
+            }
+          </select>
+        </app-form-field>
+
+        <app-form-field
+          label="Duration (hours)"
+          fieldId="duration"
+          [control]="form.controls.durationHours"
+          [required]="true"
+          hint="Whole hours only"
+        >
+          <input
+            id="duration"
+            type="number"
+            class="input"
+            formControlName="durationHours"
+            min="1"
+            step="1"
+          />
+        </app-form-field>
+
+        <app-form-field
+          label="Console Type"
+          fieldId="console-type"
+          [control]="form.controls.consoleType"
+          [required]="true"
+          hint="Only console types set up for this gaming zone are shown"
+        >
+          <select id="console-type" class="input" formControlName="consoleType">
+            <option value="" disabled>Select a console</option>
+            @for (consoleType of consoleTypes(); track consoleType) {
+              <option [value]="consoleType">{{ consoleType }}</option>
+            }
+          </select>
+        </app-form-field>
+
+        <app-form-field
+          label="Payment Method"
+          fieldId="payment-method"
+          [control]="form.controls.paymentMethod"
+          [required]="true"
+        >
+          <select id="payment-method" class="input" formControlName="paymentMethod">
+            <option value="" disabled>Select a payment method</option>
+            @for (method of paymentMethods; track method) {
+              <option [value]="method">{{ method }}</option>
+            }
+          </select>
+        </app-form-field>
+
+        @if (isEditing()) {
+          <app-form-field
+            label="Status"
+            fieldId="booking-status"
+            [control]="form.controls.status"
+            [required]="true"
+          >
+            <select id="booking-status" class="input" formControlName="status">
+              @for (status of bookingStatuses; track status) {
+                <option [value]="status">{{ status }}</option>
+              }
+            </select>
+          </app-form-field>
+        }
+
+        <app-form-field label="Total Price" fieldId="total-price" hint="Price per hour × duration">
+          <input
+            id="total-price"
+            type="text"
+            class="input-readonly"
+            [value]="totalPriceLabel()"
+            readonly
+          />
+        </app-form-field>
+      </div>
+
+      @if (formError()) {
+        <div class="form-alert mt-6" role="alert">
+          <svg lucideCircleAlert class="mt-0.5 size-4 shrink-0"></svg>
+          <p>{{ formError() }}</p>
+        </div>
+      }
+
+      <div class="mt-6 flex flex-wrap justify-end gap-3 border-t border-slate-100 pt-5">
+        <a class="btn-secondary" [routerLink]="bookingsPath">Cancel</a>
+        <button type="submit" class="btn-primary">
+          <svg lucideSave class="size-4"></svg>
+          Save Booking
+        </button>
+      </div>
+    </form>
+  }
+</div>

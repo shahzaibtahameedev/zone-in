@@ -1,0 +1,122 @@
+<div class="flex flex-col gap-6">
+  <app-page-header title="Bookings" description="Bookings from all gaming zones">
+    <a class="btn-primary" [routerLink]="paths.newBooking">
+      <svg lucidePlus class="size-4"></svg>
+      Create Booking
+    </a>
+  </app-page-header>
+
+  <section class="card p-0" aria-label="Bookings">
+    <form class="flex flex-col gap-4 p-5" [formGroup]="filtersForm" aria-label="Booking filters">
+      <div class="flex flex-wrap items-end gap-4">
+        <div class="flex flex-col gap-1.5">
+          <span class="label">Date</span>
+          <app-date-filter
+            [(value)]="selectedDate"
+            label="Booking date"
+            [allowClear]="true"
+            emptyLabel="All dates"
+          />
+        </div>
+        <div class="flex w-full flex-col gap-1.5 sm:w-56">
+          <label class="label" for="filter-zone">Gaming Zone</label>
+          <select id="filter-zone" class="input" formControlName="zoneId">
+            <option value="">All gaming zones</option>
+            @for (zone of zones(); track zone.id) {
+              <option [value]="zone.id">{{ zone.name }}</option>
+            }
+          </select>
+        </div>
+        <div class="flex w-full flex-col gap-1.5 sm:w-44">
+          <label class="label" for="filter-console">Console Type</label>
+          <select id="filter-console" class="input" formControlName="consoleType">
+            <option value="">All</option>
+            @for (consoleType of consoleTypes; track consoleType) {
+              <option [value]="consoleType">{{ consoleType }}</option>
+            }
+          </select>
+        </div>
+      </div>
+      <app-filter-chips
+        [options]="statusOptions"
+        [(selected)]="selectedStatus"
+        label="Booking status"
+      />
+    </form>
+
+    @if (bookings().length > 0) {
+      <div class="overflow-x-auto">
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th scope="col">Customer Name</th>
+              <th scope="col">Customer Email</th>
+              <th scope="col">Gaming Zone</th>
+              <th scope="col">Console Type</th>
+              <th scope="col">Date</th>
+              <th scope="col">Start Time</th>
+              <th scope="col">Duration (hours)</th>
+              <th scope="col">Amount</th>
+              <th scope="col">Payment Method</th>
+              <th scope="col">Status</th>
+              <th scope="col"><span class="sr-only">Actions</span></th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (booking of bookings(); track booking.id) {
+              <tr>
+                <td>
+                  <div class="flex items-center gap-3">
+                    <app-avatar [name]="booking.customerName" />
+                    <span class="font-medium text-slate-900">{{ booking.customerName }}</span>
+                  </div>
+                </td>
+                <td>{{ booking.customerEmail | orDash }}</td>
+                <td>{{ zoneName(booking.zoneId) }}</td>
+                <td>
+                  <span class="console-chip">{{ booking.consoleType }}</span>
+                </td>
+                <td>{{ booking.date | displayDate }}</td>
+                <td>{{ booking.startTime | displayTime }}</td>
+                <td>{{ booking.durationHours }}</td>
+                <td class="font-medium text-slate-900">{{ booking.totalPrice | rupees }}</td>
+                <td>{{ booking.paymentMethod | orDash }}</td>
+                <td><app-status-pill [status]="booking.status" /></td>
+                <td>
+                  <div class="flex justify-end gap-1">
+                    <a class="btn-action" [routerLink]="paths.editBooking(booking.id)">
+                      <svg lucidePencil class="size-4"></svg>
+                      Edit
+                    </a>
+                    @if (booking.status === 'Confirmed') {
+                      <button
+                        type="button"
+                        class="btn-action-danger"
+                        (click)="cancelBooking(booking)"
+                      >
+                        <svg lucideBan class="size-4"></svg>
+                        Cancel
+                      </button>
+                    }
+                    <button
+                      type="button"
+                      class="btn-action-danger"
+                      (click)="deleteBooking(booking)"
+                    >
+                      <svg lucideTrash class="size-4"></svg>
+                      Delete
+                    </button>
+                  </div>
+                </td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+    } @else {
+      <div class="border-t border-slate-100">
+        <app-empty-state [icon]="emptyIcon" message="No bookings match these filters." />
+      </div>
+    }
+  </section>
+</div>

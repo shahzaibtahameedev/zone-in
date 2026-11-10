@@ -1,0 +1,98 @@
+<div class="flex flex-col gap-6">
+  <app-page-header
+    title="Create a 1v1 slot"
+    description="Pick a game, place and time. Other players will see your slot and can join it."
+    context="1v1 Matches"
+  />
+
+  <form class="card max-w-[52rem]" [formGroup]="form" (ngSubmit)="createMatch()" novalidate>
+    <h2 class="card-title">Match details</h2>
+
+    <div class="mt-5 grid gap-5 sm:grid-cols-2">
+      <app-form-field
+        label="Game"
+        fieldId="match-game"
+        [control]="form.controls.game"
+        [required]="true"
+      >
+        <select id="match-game" class="input" formControlName="game">
+          <option value="" disabled>Select a game</option>
+          @for (game of games; track game) {
+            <option [value]="game">{{ game }}</option>
+          }
+        </select>
+      </app-form-field>
+
+      <app-form-field
+        label="Gaming Zone"
+        fieldId="match-zone"
+        [control]="form.controls.zoneId"
+        [required]="true"
+      >
+        <select id="match-zone" class="input" formControlName="zoneId">
+          <option value="" disabled>Select a gaming zone</option>
+          @for (zone of zones(); track zone.id) {
+            <option [value]="zone.id">{{ zone.name }} · {{ zone.area }}</option>
+          }
+        </select>
+      </app-form-field>
+
+      <app-form-field
+        label="Date"
+        fieldId="match-date"
+        [control]="form.controls.date"
+        [required]="true"
+      >
+        <input id="match-date" type="date" class="input" formControlName="date" [min]="today" />
+      </app-form-field>
+
+      <app-form-field
+        label="Start Time"
+        fieldId="match-time"
+        [control]="form.controls.startTime"
+        [required]="true"
+        [hint]="openingHoursHint"
+      >
+        <select id="match-time" class="input" formControlName="startTime">
+          <option value="" disabled>Select a time</option>
+          @for (startTime of startTimeOptions; track startTime) {
+            <option [value]="startTime">{{ startTime | displayTime }}</option>
+          }
+        </select>
+      </app-form-field>
+
+      <div class="sm:col-span-2">
+        <app-form-field
+          label="Your Name"
+          fieldId="match-player-name"
+          [control]="form.controls.playerName"
+          [required]="true"
+          hint="Shown to other players"
+        >
+          <input
+            id="match-player-name"
+            type="text"
+            class="input"
+            formControlName="playerName"
+            autocomplete="name"
+          />
+        </app-form-field>
+      </div>
+    </div>
+
+    @if (formError()) {
+      <div class="form-alert mt-6" role="alert">
+        <svg lucideCircleAlert class="mt-0.5 size-4 shrink-0"></svg>
+        <p>{{ formError() }}</p>
+      </div>
+    }
+
+    <div class="mt-6 flex flex-wrap justify-end gap-3 border-t border-slate-100 pt-5">
+      <a class="btn-secondary" [routerLink]="matchesPath">Cancel</a>
+      <button type="submit" class="btn-primary">
+        <svg lucideSwords class="size-4"></svg>
+        Create Slot
+      </button>
+    </div>
+  </form>
+</div>

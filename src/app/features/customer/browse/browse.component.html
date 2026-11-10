@@ -1,0 +1,118 @@
+<div class="flex flex-col gap-6">
+  <app-page-header
+    title="Find an available slot"
+    description="Pick your filters to see gaming zones with free slots and their prices."
+  />
+
+  <form
+    class="card"
+    [formGroup]="form"
+    (ngSubmit)="search()"
+    novalidate
+    aria-label="Search filters"
+  >
+    <div class="grid items-start gap-5 sm:grid-cols-2 lg:grid-cols-[repeat(4,minmax(0,1fr))_auto]">
+      <app-form-field label="Area" fieldId="filter-area">
+        <select id="filter-area" class="input" formControlName="area">
+          <option value="">All areas</option>
+          @for (area of areas(); track area) {
+            <option [value]="area">{{ area }}</option>
+          }
+        </select>
+      </app-form-field>
+
+      <app-form-field
+        label="Date"
+        fieldId="filter-date"
+        [control]="form.controls.date"
+        [required]="true"
+      >
+        <input id="filter-date" type="date" class="input" formControlName="date" [min]="today" />
+      </app-form-field>
+
+      <app-form-field label="Time Slot" fieldId="filter-time">
+        <select id="filter-time" class="input" formControlName="startTime">
+          <option value="">Any time</option>
+          @for (slot of timeSlots; track slot.startTime) {
+            <option [value]="slot.startTime">{{ slot.startTime | timeRange: slotHours }}</option>
+          }
+        </select>
+      </app-form-field>
+
+      <app-form-field label="Console Type" fieldId="filter-console">
+        <select id="filter-console" class="input" formControlName="consoleType">
+          <option value="">All</option>
+          @for (consoleType of consoleTypes; track consoleType) {
+            <option [value]="consoleType">{{ consoleType }}</option>
+          }
+        </select>
+      </app-form-field>
+
+      <div class="flex flex-col gap-1.5 sm:col-span-2 lg:col-span-1">
+        <span class="label invisible hidden lg:block" aria-hidden="true">Search</span>
+        <button type="submit" class="btn-primary w-full lg:w-auto">
+          <svg lucideSearch class="size-4"></svg>
+          Search
+        </button>
+      </div>
+    </div>
+  </form>
+
+  <section class="flex flex-col gap-4" aria-labelledby="results-title" aria-live="polite">
+    <div>
+      <h2 id="results-title" class="text-lg font-semibold tracking-tight text-slate-900">
+        {{ resultsHeading() }}
+      </h2>
+      <p class="mt-1 text-sm text-slate-500">{{ filtersSummary() }}</p>
+    </div>
+
+    @if (results().length > 0) {
+      <div class="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+        @for (slot of results(); track slot.zone.id + slot.consoleType + slot.startTime) {
+          <article class="card flex flex-col gap-4">
+            <div>
+              <h3 class="text-base font-semibold tracking-tight text-slate-900">
+                {{ slot.zone.name }}
+              </h3>
+              <p class="mt-1 flex items-center gap-1.5 text-sm text-slate-500">
+                <svg lucideMapPin class="size-4 shrink-0"></svg>
+                {{ slot.zone.address }}, {{ slot.zone.area }}
+              </p>
+            </div>
+
+            <div class="flex flex-wrap items-center gap-3">
+              <span class="console-chip">{{ slot.consoleType }}</span>
+              <span class="flex items-center gap-1.5 text-sm text-slate-700">
+                <svg lucideClock class="size-4 text-slate-500"></svg>
+                {{ slot.startTime | timeRange: slotHours }}
+              </span>
+            </div>
+
+            <div
+              class="mt-auto flex items-end justify-between gap-3 border-t border-slate-100 pt-4"
+            >
+              <p class="text-sm font-medium text-emerald-600">{{ slotsLabel(slot.freeUnits) }}</p>
+              <p class="text-right">
+                <span class="text-lg font-semibold tracking-tight text-slate-900">{{
+                  slot.pricePerHour | rupees
+                }}</span>
+                <span class="text-sm text-slate-500"> / hour</span>
+              </p>
+            </div>
+
+            <button type="button" class="btn-primary w-full" (click)="selectSlot(slot)">
+              Select
+            </button>
+          </article>
+        }
+      </div>
+    } @else {
+      <div class="card">
+        <app-empty-state
+          [icon]="emptyIcon"
+          message="No gaming zones have free slots for these filters. Try another date or time."
+        />
+      </div>
+    }
+  </section>
+</div>

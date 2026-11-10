@@ -1,0 +1,131 @@
+<div class="flex flex-col gap-6">
+  <app-page-header [title]="pageTitle()" context="Gaming Zones" />
+
+  @if (isNotFound()) {
+    <section class="card">
+      <app-empty-state [icon]="notFoundIcon" message="This gaming zone could not be found." />
+    </section>
+  } @else {
+    <form class="card max-w-[52rem]" [formGroup]="form" (ngSubmit)="saveZone()" novalidate>
+      <h2 class="card-title">Gaming zone details</h2>
+
+      <div class="mt-5 grid gap-5 sm:grid-cols-2">
+        <app-form-field
+          label="Gaming Zone Name"
+          fieldId="zone-name"
+          [control]="form.controls.name"
+          [required]="true"
+        >
+          <input
+            id="zone-name"
+            type="text"
+            class="input"
+            formControlName="name"
+            autocomplete="off"
+          />
+        </app-form-field>
+
+        <app-form-field
+          label="Address"
+          fieldId="zone-address"
+          [control]="form.controls.address"
+          [required]="true"
+        >
+          <input
+            id="zone-address"
+            type="text"
+            class="input"
+            formControlName="address"
+            placeholder="e.g. Block 13"
+          />
+        </app-form-field>
+
+        <app-form-field
+          label="Area"
+          fieldId="zone-area"
+          [control]="form.controls.area"
+          [required]="true"
+          hint="Used by the customer Area filter"
+        >
+          <select id="zone-area" class="input" formControlName="area">
+            <option value="" disabled>Select an area</option>
+            @for (area of areas; track area) {
+              <option [value]="area">{{ area }}</option>
+            }
+          </select>
+        </app-form-field>
+
+        <app-form-field
+          label="Contact Number"
+          fieldId="zone-phone"
+          [control]="form.controls.contactNumber"
+          [required]="true"
+          hint="For example 0321 4567890"
+        >
+          <input
+            id="zone-phone"
+            type="tel"
+            class="input"
+            formControlName="contactNumber"
+            placeholder="03XX XXXXXXX"
+          />
+        </app-form-field>
+
+        <app-form-field
+          label="Contact Email"
+          fieldId="zone-email"
+          [control]="form.controls.contactEmail"
+        >
+          <input id="zone-email" type="email" class="input" formControlName="contactEmail" />
+        </app-form-field>
+
+        <fieldset class="flex flex-col gap-1.5">
+          <legend class="label">
+            Status <span class="text-rose-600" aria-hidden="true">*</span>
+          </legend>
+          <div class="flex flex-wrap gap-2">
+            <label
+              class="flex h-11 cursor-pointer items-center gap-2 rounded-xl px-3 ring-1 ring-slate-200 hover:bg-slate-50 has-checked:bg-violet-50 has-checked:ring-violet-500"
+            >
+              <input type="radio" class="radio" formControlName="isActive" [value]="true" />
+              <span class="text-sm font-medium text-slate-900">Active</span>
+            </label>
+            <label
+              class="flex h-11 cursor-pointer items-center gap-2 rounded-xl px-3 ring-1 ring-slate-200 hover:bg-slate-50 has-checked:bg-violet-50 has-checked:ring-violet-500"
+            >
+              <input type="radio" class="radio" formControlName="isActive" [value]="false" />
+              <span class="text-sm font-medium text-slate-900">Inactive</span>
+            </label>
+          </div>
+          <p class="hint">Inactive gaming zones are hidden from customers</p>
+        </fieldset>
+
+        <div class="sm:col-span-2">
+          <app-form-field label="Available Facilities" fieldId="zone-facilities">
+            <textarea
+              id="zone-facilities"
+              class="textarea"
+              formControlName="facilities"
+              placeholder="List the facilities this gaming zone offers"
+            ></textarea>
+          </app-form-field>
+        </div>
+      </div>
+
+      @if (formError()) {
+        <div class="form-alert mt-6" role="alert">
+          <svg lucideCircleAlert class="mt-0.5 size-4 shrink-0"></svg>
+          <p>{{ formError() }}</p>
+        </div>
+      }
+
+      <div class="mt-6 flex flex-wrap justify-end gap-3 border-t border-slate-100 pt-5">
+        <a class="btn-secondary" [routerLink]="zonesPath">Cancel</a>
+        <button type="submit" class="btn-primary">
+          <svg lucideSave class="size-4"></svg>
+          Save Gaming Zone
+        </button>
+      </div>
+    </form>
+  }
+</div>

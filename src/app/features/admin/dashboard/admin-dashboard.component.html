@@ -1,0 +1,117 @@
+<div class="flex flex-col gap-6">
+  <app-page-header
+    title="Dashboard"
+    description="Overview of the whole platform"
+    [context]="todayLabel"
+  />
+
+  <form class="card" [formGroup]="filtersForm" aria-label="Dashboard filters">
+    <div class="grid gap-5 sm:grid-cols-3">
+      <app-form-field label="From date" fieldId="filter-from">
+        <input id="filter-from" type="date" class="input" formControlName="fromDate" />
+      </app-form-field>
+      <app-form-field label="To date" fieldId="filter-to">
+        <input id="filter-to" type="date" class="input" formControlName="toDate" />
+      </app-form-field>
+      <app-form-field label="Gaming Zone" fieldId="filter-zone">
+        <select id="filter-zone" class="input" formControlName="zoneId">
+          <option value="">All gaming zones</option>
+          @for (zone of zones(); track zone.id) {
+            <option [value]="zone.id">{{ zone.name }}</option>
+          }
+        </select>
+      </app-form-field>
+    </div>
+  </form>
+
+  <section
+    class="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 2xl:grid-cols-5"
+    aria-label="Platform numbers"
+  >
+    <app-stat-card
+      label="Total Gaming Zones"
+      [value]="zones().length"
+      [caption]="zonesCaption()"
+      [icon]="icons.zones"
+      tone="pink"
+    />
+    <app-stat-card
+      label="Total Bookings"
+      [value]="stats().totalBookings"
+      caption="Confirmed bookings in this range"
+      [icon]="icons.bookings"
+      tone="violet"
+    />
+    <app-stat-card
+      label="Total Revenue"
+      [value]="stats().totalRevenue | rupees"
+      caption="From confirmed bookings in this range"
+      [icon]="icons.revenue"
+      tone="emerald"
+    />
+    <app-stat-card
+      label="Total Customers"
+      [value]="totalCustomers()"
+      caption="Across the whole platform"
+      [icon]="icons.customers"
+      tone="sky"
+    />
+    <app-stat-card
+      label="Most Booked Console"
+      [value]="mostBookedValue()"
+      [caption]="mostBookedCaption()"
+      [icon]="icons.console"
+      tone="amber"
+    />
+  </section>
+
+  <section class="card p-0" aria-labelledby="recent-bookings-title">
+    <div class="p-5">
+      <h2 id="recent-bookings-title" class="card-title">Recent bookings</h2>
+    </div>
+
+    @if (recentBookings().length > 0) {
+      <div class="overflow-x-auto">
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th scope="col">Customer Name</th>
+              <th scope="col">Gaming Zone</th>
+              <th scope="col">Console Type</th>
+              <th scope="col">Date</th>
+              <th scope="col">Start Time</th>
+              <th scope="col">Duration (hours)</th>
+              <th scope="col">Amount</th>
+              <th scope="col">Status</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (booking of recentBookings(); track booking.id) {
+              <tr>
+                <td>
+                  <div class="flex items-center gap-3">
+                    <app-avatar [name]="booking.customerName" />
+                    <span class="font-medium text-slate-900">{{ booking.customerName }}</span>
+                  </div>
+                </td>
+                <td>{{ zoneName(booking.zoneId) }}</td>
+                <td>
+                  <span class="console-chip">{{ booking.consoleType }}</span>
+                </td>
+                <td>{{ booking.date | displayDate }}</td>
+                <td>{{ booking.startTime | displayTime }}</td>
+                <td>{{ booking.durationHours }}</td>
+                <td class="font-medium text-slate-900">{{ booking.totalPrice | rupees }}</td>
+                <td><app-status-pill [status]="booking.status" /></td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+    } @else {
+      <div class="border-t border-slate-100">
+        <app-empty-state [icon]="icons.empty" message="No bookings match these filters." />
+      </div>
+    }
+  </section>
+</div>

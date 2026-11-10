@@ -1,0 +1,73 @@
+<div class="flex flex-col gap-6">
+  <app-page-header title="Customers" description="Everyone who has booked on the platform" />
+
+  <section class="card p-0" aria-label="Customers">
+    <form
+      class="flex flex-wrap items-end gap-3 p-5"
+      role="search"
+      [formGroup]="searchForm"
+      (ngSubmit)="applySearch()"
+    >
+      <div class="flex min-w-0 flex-1 flex-col gap-1.5 sm:max-w-md">
+        <label class="label" for="customer-search">Search by name or email</label>
+        <input
+          id="customer-search"
+          type="search"
+          class="input"
+          formControlName="term"
+          placeholder="e.g. Ali or ali@example.com"
+          autocomplete="off"
+        />
+      </div>
+      <button type="submit" class="btn-primary">
+        <svg lucideSearch class="size-4"></svg>
+        Search
+      </button>
+    </form>
+
+    @if (customers().length > 0) {
+      <div class="overflow-x-auto">
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th scope="col">Customer Name</th>
+              <th scope="col">Email</th>
+              <th scope="col">Total Bookings</th>
+              <th scope="col">Last Booking Date</th>
+              <th scope="col"><span class="sr-only">Actions</span></th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (summary of customers(); track summary.customer.id) {
+              <tr>
+                <td>
+                  <div class="flex items-center gap-3">
+                    <app-avatar [name]="summary.customer.name ?? summary.customer.email" />
+                    <span class="font-medium text-slate-900">{{
+                      summary.customer.name | orDash
+                    }}</span>
+                  </div>
+                </td>
+                <td>{{ summary.customer.email }}</td>
+                <td>{{ summary.totalBookings }}</td>
+                <td>{{ summary.lastBookingDate | displayDate }}</td>
+                <td>
+                  <div class="flex justify-end">
+                    <a class="btn-action" [routerLink]="paths.customerDetails(summary.customer.id)">
+                      <svg lucideEye class="size-4"></svg>
+                      View
+                    </a>
+                  </div>
+                </td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+    } @else {
+      <div class="border-t border-slate-100">
+        <app-empty-state [icon]="emptyIcon" message="No customers match your search." />
+      </div>
+    }
+  </section>
+</div>
